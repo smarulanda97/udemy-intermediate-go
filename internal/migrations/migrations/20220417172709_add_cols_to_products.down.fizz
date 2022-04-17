@@ -1,0 +1,2 @@
+drop_column("products", "is_recurring")
+drop_column("products", "plan_id")

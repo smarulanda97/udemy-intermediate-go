@@ -1,0 +1,12 @@
+create_table("products") {
+    t.Column("id", "integer", {primary: true})
+    t.Column("name", "string", {"default": ""})
+    t.Column("description", "text", {"default": ""})
+    t.Column("inventory_level", "integer", {})
+    t.Column("price", "integer", {})
+}
+
+sql("alter table products alter column created_at set default now();")
+sql("alter table products alter column updated_at set default now();")
+
+sql("insert into products (name, description, inventory_level, price, created_at, updated_at) values ('Corn keyboard Case', 'A very nice widget.', 10, 1000, now(), now());")

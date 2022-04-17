@@ -1,0 +1,175 @@
+{{ define "stripe-js" }}
+    <script src="//js.stripe.com/v3"></script>
+    <script>       
+        (function () {
+            {{/*
+             * ============================================================================
+             * |   Stripe instance:                                                        |          |
+             * |                                                                           |                                                                         |
+             * =============================================================================
+             */}}
+            let card;
+            let stripe = Stripe({{ index .StripePublicKey }});
+
+            const elements = stripe.elements();
+            const style = {
+                base: {
+                    fontSize: '16px',
+                    lineHeight: '24px',
+                }
+            };
+
+            card = elements.create('card', {
+                style,  
+                hidePostalCode: true,
+
+            })
+            card.mount('#card-element');
+
+            // Check for input errors
+            card.addEventListener('change', function (event) {
+                var displayError = document.getElementById('card-error');
+                if (event.error) {
+                    displayError.textContent = event.error.message;
+                    displayError.classList.add('d-block');
+                } else {
+                    displayError.classList.remove('d-block');
+                    displayError.textContet = '';
+                }
+            })
+
+            /**
+             * ============================================================================
+             * |   Functions:                                                              |          |
+             * |   All functions related to form validations or update GUI                 |                                                                         |
+             * =============================================================================
+             */
+
+            function displayMessage(type, message) {
+                const cardMessages = document.getElementById("card-messages");
+                if (type === 'error') {
+                    cardMessages.classList.add('alert-danger');
+                    cardMessages.classList.remove('alert-success');
+                } else if (type === 'success'){
+                    cardMessages.classList.add('alert-success');
+                    cardMessages.classList.remove('alert-danger');
+                }
+
+                cardMessages.classList.remove('d-none');
+                cardMessages.innerText = message;
+            }
+
+            function showChargeButton() {
+                const payButton = document.getElementById('pay-button');
+                const loader = document.getElementById('processing-payment');
+                
+                loader.classList.add('d-none');
+                payButton.classList.remove('d-none');
+            }
+
+            function hideChargeButton() {
+                const payButton = document.getElementById('pay-button');
+                const loader = document.getElementById('processing-payment');
+                
+                loader.classList.remove('d-none');
+                payButton.classList.add('d-none');
+            }
+
+            function hideProcessing() {
+                const loader = document.getElementById('processing-payment');
+                loader.classList.add('d-none');
+            }
+
+            async function confirmCardPayment(clientSecret) {
+                try {
+                    const form = document.getElementById('charge-form'); 
+                    const name = document.getElementById('cardholder_name').value || '';
+                    const payment = {
+                        payment_method: {
+                            card,
+                            billing_details: { name }
+                        }
+                    }
+                    const result = await stripe.confirmCardPayment(clientSecret, payment);
+                    if (result.error) {
+                        displayMessage('error', result.error.message);
+                        showChargeButton();
+                        return false;
+                    }
+
+                    const { paymentIntent } = result;
+                    if (!paymentIntent) {
+                        return false;
+                    }
+
+                    if (paymentIntent.status === 'succeeded') {
+                        document.getElementById('payment_intent').value = paymentIntent.id;
+                        document.getElementById('payment_amount').value = paymentIntent.amount;
+                        document.getElementById('payment_currency').value = paymentIntent.currency;
+                        document.getElementById('payment_method').value = paymentIntent.payment_method;
+                        
+                        hideProcessing();
+                        displayMessage('success', 'Transaction successful');
+
+                        setTimeout(() => form.submit(), 800);
+                    }
+                } catch (e) {
+                    showChargeButton();
+                    displayMessage('error', e);
+                }
+            }
+
+            async function createPaymentIntent() {
+                let amount = document.getElementById('amount').value;
+                let payload = {
+                    amount: amount,
+                    currency: 'usd'
+                };
+
+                const options = {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                };
+
+                try {
+                    const response = await fetch('{{ index .ApiUrl }}/api/payment/intent', options);
+                    const data = await response.json();
+                    return data;
+                } catch (e) {
+                    showChargeButton();
+                    return false;
+                } 
+            }
+
+            function validateForm(event) {
+                const form = document.getElementById('charge-form');
+                const payButton = document.getElementById('pay-button');
+                const loader = document.getElementById('processing-payment');
+
+                form.classList.add('was-validated');
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+
+                hideChargeButton();
+
+                (async () => {
+                    const paymentData = await createPaymentIntent();
+                    if (!paymentData) {
+                        return;
+                    }
+
+                    await confirmCardPayment(paymentData.client_secret);
+                })();
+            }
+
+            document.getElementById('pay-button').addEventListener('click', validateForm);
+        })();
+    </script>
+{{ end }}

@@ -1,0 +1,83 @@
+{{template "base" .}}
+
+{{define "title"}}
+    Virtual terminal
+{{end}}
+
+{{define "content"}}
+    <section class="container">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-md-10 col-lg-6">
+                <h1 class="text-center mt-5">Virtual terminal</h1>
+
+                <form action="/cart/payment" method="POST" id="charge-form" autocomplete="off">
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input 
+                            required
+                            type="text" 
+                            id="amount"
+                            name="amount"
+                            placeholder="10"
+                            class="form-control" 
+                            aria-describedby="Amount"
+                            autocomplete="amount-new" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="cardholder_email" class="form-label">Email</label>
+                        <input 
+                            required
+                            type="email" 
+                            class="form-control" 
+                            name="cardholder_email"
+                            aria-describedby="Email" 
+                            placeholder="johndoe@gmail.com"
+                            autocomplete="cardholder-email-new" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="card-element" class="form-label">Card number</label>
+                        <div id="card-element" class="form-control"></div>
+                        <div class="valid-feedback" id="card-success" role="alert"></div>
+                        <div class="invalid-feedback" id="card-error" role="alert"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cardholder_name" class="form-label">Cardholder name</label>
+                        <input 
+                            required
+                            type="text" 
+                            class="form-control" 
+                            name="cardholder_name"
+                            id="cardholder_name"
+                            placeholder="Jhon Doe"
+                            aria-describedby="Cardholder name" 
+                            autocomplete="cardholder-name-new" />
+                    </div>
+
+                    <button id="pay-button" type="button" class="btn btn-primary">Charge card</button>
+
+                    <div id="processing-payment" class="text-center d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="payment_intent" id="payment_intent" />
+                    <input type="hidden" name="payment_method" id="payment_method" />
+                    <input type="hidden" name="payment_amount" id="payment_amount" />
+                    <input type="hidden" name="payment_currency" id="payment_currency" />
+                
+                    <div class="alert alert-danger d-flex align-items-center d-none mt-3" role="alert" id="card-messages"></div>
+
+                </form>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Card number will be built by stripe -->
+{{end}}
+
+
+{{ define "js" }}
+    {{ template "stripe-js" . }}
+{{ end }}

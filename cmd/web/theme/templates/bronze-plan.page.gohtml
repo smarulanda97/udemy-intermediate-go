@@ -1,0 +1,123 @@
+{{ template "base" .}}
+
+{{ define "title" }}
+    Bronze plan
+{{ end }}
+
+{{ define "content"}}
+    
+    {{ $product := index .Data "product" }}
+
+    <section class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-md-6 col-lg-5 text-center">
+                <h1 >{{ $product.Name }}</h1>
+                <p>{{ $product.Description }}</p>
+
+                <span>Price: {{ formatCurrency $product.Price }}</span>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-md-12 col-lg-8 mt-5">
+                 <form action="/cart/payment" method="POST" id="charge-form" autocomplete="off">
+                    <input type="hidden" name="product_id" value="{{ $product.ID }}" />
+
+                    <div class="mb-3 d-none">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input 
+                            required
+                            type="hidden" 
+                            id="amount"
+                            name="amount"
+                            placeholder="10"
+                            class="form-control" 
+                            readonly="readonly"
+                            aria-describedby="Amount"
+                            value="{{ $product.Price }}"
+                            autocomplete="amount-new" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="first_name" class="form-label">First name</label>
+                        <input 
+                            required
+                            type="text" 
+                            class="form-control" 
+                            name="first_name"
+                            id="first_name"
+                            placeholder="Jhon"
+                            aria-describedby="First name" 
+                            autocomplete="first-name-new" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="last_name" class="form-label">Last name</label>
+                        <input 
+                            required
+                            type="text" 
+                            class="form-control" 
+                            name="last_name"
+                            id="last_name"
+                            placeholder="Doe"
+                            aria-describedby="Last name" 
+                            autocomplete="last-name-new" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cardholder_email" class="form-label">Email</label>
+                        <input 
+                            required
+                            type="email" 
+                            class="form-control" 
+                            name="cardholder_email"
+                            aria-describedby="Email" 
+                            placeholder="johndoe@gmail.com"
+                            autocomplete="cardholder-email-new" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="card-element" class="form-label">Card number</label>
+                        <div id="card-element" class="form-control"></div>
+                        <div class="valid-feedback" id="card-success" role="alert"></div>
+                        <div class="invalid-feedback" id="card-error" role="alert"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cardholder_name" class="form-label">Name on card</label>
+                        <input 
+                            required
+                            type="text" 
+                            class="form-control" 
+                            name="cardholder_name"
+                            id="cardholder_name"
+                            placeholder="Jhon Doe"
+                            aria-describedby="Cardholder name" 
+                            autocomplete="cardholder-name-new" />
+                    </div>
+
+                    <button id="pay-button" type="button" class="btn btn-primary">Charge card</button>
+
+                    <div id="processing-payment" class="text-center d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="payment_intent" id="payment_intent" />
+                    <input type="hidden" name="payment_method" id="payment_method" />
+                    <input type="hidden" name="payment_amount" id="payment_amount" />
+                    <input type="hidden" name="payment_currency" id="payment_currency" />
+                
+                    <div class="alert alert-danger d-flex align-items-center d-none mt-3" role="alert" id="card-messages"></div>
+
+                </form>
+            </div>
+        </div>
+    </section>
+{{ end }}
+
+{{ define "js" }}
+    {{ $product := index .Data "product" }}
+
+    <script src="//js.stripe.com/v3/"></script>
+{{ end }}

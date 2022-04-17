@@ -1,0 +1,2 @@
+add_column("products", "is_recurring", "bool", {"default": 0})
+add_column("products", "plan_id", "string", {"default": ""})

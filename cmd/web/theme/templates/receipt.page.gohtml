@@ -1,0 +1,27 @@
+{{ template "base" .}}
+
+{{ define "title" }}
+    Payment Succeeded!
+{{ end }}
+
+{{ define "content" }}
+    {{ $txn := index .Data "txn" }}
+    
+    <section class="container">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-lg-7">
+                <h1 class="text-center mt-5">Payment Succeeded</h1>
+                <hr>
+
+                <p><b>Payment intent: </b> {{ $txn.PaymentIntentID }}</p>
+                <p><b>Customer name: </b> {{ $txn.FirstName }} {{ $txn.LastName }}</p>
+                <p><b>Customer Email: </b> {{ $txn.Email }}</p>
+                <p><b>Payment method: </b> {{ $txn.PaymentMethodID }}</p>
+                <p><b>Payment amount: </b> {{ formatCurrency $txn.PaymentAmount }}</p>
+                <p><b>Card: </b> {{ $txn.LastFour }}</p>
+                <p><b>Expiry date: </b> {{ $txn.ExpiryMonth -}} / {{- $txn.ExpiryYear }}</p>
+                <p><b>Bank return code: </b> {{ $txn.BankReturnCode }}</p>
+            </div>
+        </div>
+    </section>
+{{ end }}
