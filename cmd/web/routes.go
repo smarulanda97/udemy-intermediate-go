@@ -11,7 +11,7 @@ import (
 func (app *application) routes() http.Handler {
 	mux := chi.NewRouter()
 
-	mux.Use(middlewares.SessionLoad(session))
+	mux.Use(middlewares.SessionLoadMiddleware(session))
 
 	mux.Handle("/static/*", app.kernel.FileServer())
 
@@ -34,6 +34,10 @@ func (app *application) routes() http.Handler {
 
 	mux.Route("/plan", func(r chi.Router) {
 		r.Get("/bronze", app.BronzePlanController)
+	})
+
+	mux.Route("/user", func(r chi.Router) {
+		r.Get("/login", app.LoginController)
 	})
 
 	return mux

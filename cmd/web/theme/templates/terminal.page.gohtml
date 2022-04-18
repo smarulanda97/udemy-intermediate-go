@@ -79,5 +79,10 @@
 
 
 {{ define "js" }}
+    <script>
+        (async function() {
+            await checkAuth();
+        })();
+    </script>
     {{ template "stripe-js" . }}
 {{ end }}

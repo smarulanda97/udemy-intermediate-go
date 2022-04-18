@@ -135,3 +135,9 @@ func (app *application) BronzePlanController(w http.ResponseWriter, r *http.Requ
 		app.errorLog.Println(err)
 	}
 }
+
+func (app *application) LoginController(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "login", &utils.TemplateData{}); err != nil {
+		app.errorLog.Println(err)
+	}
+}
